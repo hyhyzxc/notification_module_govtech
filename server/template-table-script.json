@@ -1,0 +1,27 @@
+{
+    "TableName": "Template",
+    "KeySchema": [
+      {
+        "AttributeName": "templateId",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "statusId",
+        "KeyType": "RANGE"
+      }
+    ],
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "templateId",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "statusId",
+        "AttributeType": "S"
+      }
+    ],
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 100,
+      "WriteCapacityUnits": 100
+    }
+}

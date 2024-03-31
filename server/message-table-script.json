@@ -1,0 +1,29 @@
+{
+    "TableName": "Message",
+    "KeySchema": [
+      {
+        "AttributeName": "applicationRef",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "userId#statusId",
+        "KeyType": "RANGE"
+      }
+    ],
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "applicationRef",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "userId#statusId",
+        "AttributeType": "S"
+      }
+    ],
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 100,
+      "WriteCapacityUnits": 100
+    }
+  }
+
+
