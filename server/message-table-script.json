@@ -6,7 +6,7 @@
         "KeyType": "HASH"
       },
       {
-        "AttributeName": "userId#statusId",
+        "AttributeName": "userId",
         "KeyType": "RANGE"
       }
     ],
@@ -16,7 +16,7 @@
         "AttributeType": "S"
       },
       {
-        "AttributeName": "userId#statusId",
+        "AttributeName": "userId",
         "AttributeType": "S"
       }
     ],

@@ -25,18 +25,22 @@ export class TemplateController {
     return this.templateService.findAll();
   }
 
-  @Get(':statusId')
-  findByStatusId(@Param('statusId') statusId: string) {
-    return this.templateService.findByStatusId(statusId);
+  @Get(':statusName')
+  findByStatusId(@Param('statusName') statusName: string) {
+    return this.templateService.findByStatusName(statusName);
   }
 
-  @Patch(':templateId/:statusId')
+  @Patch(':templateId/:statusName')
   update(
     @Param('templateId') templateId: string,
-    @Param('statusId') statusId: string,
+    @Param('statusName') statusName: string,
     @Body() updateTemplateDto: UpdateTemplateDto,
   ) {
-    return this.templateService.update(templateId, statusId, updateTemplateDto);
+    return this.templateService.update(
+      templateId,
+      statusName,
+      updateTemplateDto,
+    );
   }
 
   @Delete(':id')

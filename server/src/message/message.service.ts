@@ -8,14 +8,12 @@ import { v4 as uuid } from 'uuid';
 export class MessageService {
   async create(createMessageDto: CreateMessageDto) {
     const userId = uuid();
-    const statusId = uuid();
-    const sk = userId + '#' + statusId;
     return await dynamoDBClient()
       .put({
         TableName: 'Message',
         Item: {
           applicationRef: uuid(),
-          'userId#statusId': sk,
+          userId: userId,
           message: createMessageDto.message,
           userName: createMessageDto.userName,
           statusName: createMessageDto.statusName,
@@ -36,13 +34,13 @@ export class MessageService {
 
   async update(
     applicationRef: string,
-    sortKey: string,
+    userId: string,
     updateMessageDto: UpdateMessageDto,
   ) {
     const updated = await dynamoDBClient()
       .update({
         TableName: 'Message',
-        Key: { applicationRef: applicationRef, 'userId#statusId': sortKey },
+        Key: { applicationRef: applicationRef, userId: userId },
         UpdateExpression:
           'set message = :m, userName = :name, statusName = :s, userNumber = :num',
         ExpressionAttributeValues: {
@@ -57,11 +55,11 @@ export class MessageService {
     return updated.Attributes;
   }
 
-  async remove(applicationRef: string, sk: string) {
+  async remove(applicationRef: string, userId: string) {
     return await dynamoDBClient()
       .delete({
         TableName: 'Message',
-        Key: { applicationRef: applicationRef, 'userId#statusId': sk },
+        Key: { applicationRef: applicationRef, userId: userId },
       })
       .promise();
   }

@@ -14,7 +14,7 @@ export class AppService {
   constructor(private readonly httpService: HttpService) {}
 
   async sendAll(query: any): Promise<any[]>{
-    console.log(query);
+    //console.log(query);
     const httpsAgent = new https.Agent({
       rejectUnauthorized: false, // Add this line to ignore SSL certificate errors
     });
@@ -69,14 +69,9 @@ export class AppService {
     ));
     const messageList = messageAPICall.data;
 
-    console.log(messageList);
-
     for(let i = 0; i < messageList.length; i++) {
       const msg = messageList[i];
-      const key : string = msg['userId#statusId'];
-      const index_hash = key.indexOf('#');
-      const userId = key.slice(0, index_hash);
-      const statusId = key.slice(index_hash+1);
+      const userId = msg.userId;
       const statusName = msg.statusName;
       const message = msg.message;
       const userName = msg.userName;
@@ -84,19 +79,19 @@ export class AppService {
       const applicationRef = msg.applicationRef;
       
       const templateAPICall = await firstValueFrom(this.httpService.get(
-        `https://localhost:4000/template/${statusId}`, 
+        `https://localhost:4000/template/${statusName}`, 
         {
           httpsAgent: httpsAgent,
         }
       ));
 
       const templateData = templateAPICall.data[0];
-      console.log(templateData);
+      //console.log(templateData);
       const templateId = templateData.templateId;
       const fields : string[] = templateData.fields;
       let body = templateData.body;
       for (const field of fields) {
-        console.log(field);
+        //console.log(field);
         if (field === "name") {
           body = body.replace("{", "").replace("}", "").replace("name", userName);
         } else {
@@ -130,7 +125,7 @@ export class AppService {
       message.push(msg_rsp);
 
       const updateMessageAPICall = await firstValueFrom(this.httpService.patch(
-        `https://localhost:4000/message/${applicationRef}/${key}`, 
+        `https://localhost:4000/message/${applicationRef}/${userId}`, 
         {
           userName: userName,
           message: message,
@@ -146,165 +141,109 @@ export class AppService {
       const updateMessageData = updateMessageAPICall.data;
       console.log(updateMessageData);
     }
-    console.log(responses);
+    //console.log(responses);
     return responses;
   }
 
   
-  
-  
+  async getAll(): Promise<any> {
+    const httpsAgent = new https.Agent({
+      rejectUnauthorized: false, // Add this line to ignore SSL certificate errors
+    });
 
-  // async sendAll(query: any): Promise<any[]>{
-  //   console.log(query);
-     
+    interface Message_Response {
+      createdAt : string,
+      updatedAt: string,
+      id: string,
+      recipient: string,
+      values: object,
+      fullMessage: string,
+      latestStatus: string,
+      templateBodyId: string,
+      campaignId: string,
+      language: string
+    }
 
-    
+    const responses = [];
 
+    const campaignid = process.env.CAMPAIGN_ID;
+    const api_key = process.env.API_KEY;
 
-    
+    const messageAPICall = await firstValueFrom(this.httpService.get(
+      `https://localhost:4000/message`, {
+        httpsAgent: httpsAgent
+      }
+    ));
 
+    const messages = messageAPICall.data;
 
-    
+    const postmanAPICall = await firstValueFrom(this.httpService.get(
+      `https://test.postman.gov.sg/api/v2/campaigns/${campaignid}/messages?limit=100`, 
+      {
+        headers: {
+          Authorization: `Bearer ${api_key}`,
+        },
+        httpsAgent, // Add this line to use the custom agent
+      }
+    ))
 
-  //   //fetch all users
-  //   const usersAPICall = await firstValueFrom(this.httpService.get(
-  //     'https://localhost:4000/users', {
-  //       httpsAgent: httpsAgent
-  //     }
-  //   ));
-  //   const usersList = usersAPICall.data;
+    const messageHistory = postmanAPICall.data.data;
 
-  //   for (let i = 0; i < usersList.length; i++) {
-  //     const user = usersList[i];
-  //     const userId = user.id;
+    const messageHistoryMap = new Map<string, any>();
 
-  //     const userMessageDataAPICall = await firstValueFrom(this.httpService.get(
-  //       `https://localhost:4000/users/messageDetails/${userId}`, {
-  //         httpsAgent: httpsAgent
-  //       }
-  //     ))
-
-  //     const userMessageData = userMessageDataAPICall.data[0];
-
-  //     const username = userMessageData.username;
-  //     const number = userMessageData.number;
-  //     let body = `Hi ${username}! `  + userMessageData.body + '.';
-
-  //     const templateId = userMessageData.templateid;
-  //     console.log(templateId);
-
-  //     const templateAPICall = await firstValueFrom(this.httpService.get(
-  //       `https://localhost:4000/template/${templateId}`, {
-  //         httpsAgent: httpsAgent
-  //       }
-  //     ))
-
-  //     const templateData = templateAPICall.data;
-
-  //     const fields = templateData.fields;
-  //     console.log(fields);
-      
-
-      
-
-  //     const response = await sendPostmanMessage(reqBody);
-      
-  //     const msg_rsp : Message_Response = {
-  //       createdAt: response.createdAt,
-  //       updatedAt: response.updatedAt,
-  //       id: response.id,
-  //       recipient: response.recipient,
-  //       values: response.values,
-  //       fullMessage: response.fullMessage,
-  //       latestStatus: response.latestStatus,
-  //       templateBodyId: response.templateBodyId,
-  //       campaignId: response.campaignId,
-  //       language: response.language
-  //     }
-  //     responses.push(msg_rsp);
-
-  //   }
-  //   return responses;
+    for(const message of messageHistory) {
+      messageHistoryMap.set(message.id, message);
+    }
 
 
-    // return new Promise<any[]>(resolve => {
-    //   userMessageData.subscribe({
-    //     next(x) {
-    //       //console.log(typeof x[0]);
-    //       userData = userData.concat(x);
-    //     },
-    //     error(err) {
-    //       console.error(err);
-    //       return [{
-    //         error: "Error sending messages."
-    //       }];
-    //     },
-    //     async complete(){
-          
-    //       const httpsAgent = new https.Agent({
-    //         rejectUnauthorized: false,
-    //       });
-    //       for (const obj of userData) {
-    //         console.log(obj);
-    //         const username = obj.username;
-    //         const number = obj.number;
-    //         const statusname = obj.statusname;
-    //         const fieldname = obj.fieldname;
-    //         const body = obj.body.replace("{", "").replace("}","").replace(fieldname, deadline)
-
-    //         console.log(body);
-    //         const reqBody = {
-    //           recipient: number,
-    //           language: "english",
-    //           values: {
-    //             body: body
-    //           }
-    //         }
+    for (let i = 0; i < messages.length; i++) {
+      const msg = messages[i];
+      const userMessageList = msg.message;
+      for (const userMessage of userMessageList) {
+        console.log(userMessage.latestStatus);
+        //console.log(userMessage);
+        //console.log(campaignid);
+        if (userMessage.latestStatus == 'created') {
+            const pastMessage = messageHistoryMap.get(userMessage.id);
             
+            userMessage.latestStatus = pastMessage.latestStatus;
             
-            
-  
-  
-    //       }
-    //       //console.log(responses);
-    //       resolve(responses);
-          
-    //     }
-    //   });   
+        }
+        responses.push(userMessage);
+      }
+      const updateMessageAPICall = await firstValueFrom(this.httpService.patch(
+        `https://localhost:4000/message/${msg.applicationRef}/${msg.userId}`,
+          {
+            userName: msg.userName,
+            message: userMessageList,
+            statusName: msg.statusName,
+            userNumber: msg.userNumber,
+          },
+          {
+            httpsAgent: httpsAgent,
+          }
+      ));
+      console.log(updateMessageAPICall.data);
       
-    // })
-      
+    }
+    //console.log(responses);
+    return responses;
+  }
+  
   
 
 
   // async getAll():Promise<any> {
-  //   interface Message_Response {
-  //     createdAt : string,
-  //     updatedAt: string,
-  //     id: string,
-  //     recipient: string,
-  //     values: object,
-  //     fullMessage: string,
-  //     latestStatus: string,
-  //     templateBodyId: string,
-  //     campaignId: string,
-  //     language: string
-  //   }
+    
 
   //   const httpsAgent = new https.Agent({
   //     rejectUnauthorized: false, // Add this line to ignore SSL certificate errors
   //   });
-  //   const campaignid = process.env.CAMPAIGN_ID;
-  //   const api_key = process.env.API_KEY;
+    
   //   try {
   //     const data = this.httpService.get(
   //       `https://test.postman.gov.sg/api/v2/campaigns/${campaignid}/messages?limit=10`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${api_key}`,
-  //         },
-  //         httpsAgent, // Add this line to use the custom agent
-  //       }
+        
   //     );
   //     const response = await firstValueFrom(data);
   //     console.log(response);

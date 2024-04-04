@@ -13,9 +13,10 @@ export class AppController {
     return res;
   }
 
-  // @Get()
-  // async getMessageHistory() {
-  //   const res = await this.appService.getAll();
-  //   return res;
-  // }
+  @Get()
+  async getMessageHistory() {
+    const res = await this.appService.getAll();
+    console.log(res);
+    return res;
+  }
 }

@@ -32,13 +32,13 @@ export class TemplateService {
     return results.Items;
   }
 
-  async findByStatusId(statusId) {
+  async findByStatusName(statusName) {
     const results = await dynamoDBClient()
       .scan({
         TableName: 'Template',
-        FilterExpression: 'statusId = :statusId',
+        FilterExpression: 'statusName = :statusName',
         ExpressionAttributeValues: {
-          ':statusId': statusId,
+          ':statusName': statusName,
         },
       })
       .promise();
@@ -47,18 +47,17 @@ export class TemplateService {
 
   async update(
     templateId: string,
-    statusId: string,
+    statusName: string,
     updateTemplateDto: UpdateTemplateDto,
   ) {
     const updated = await dynamoDBClient()
       .update({
         TableName: 'Template',
-        Key: { templateId: templateId, statusId: statusId },
-        UpdateExpression: 'set #f = :f, body = :b, statusName = :s',
+        Key: { templateId: templateId, statusName: statusName },
+        UpdateExpression: 'set #f = :f, body = :b',
         ExpressionAttributeValues: {
           ':f': updateTemplateDto.fields,
           ':b': updateTemplateDto.body,
-          ':s': updateTemplateDto.statusName,
         },
         ExpressionAttributeNames: {
           '#f': 'fields',

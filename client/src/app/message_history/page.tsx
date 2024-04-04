@@ -36,7 +36,7 @@ export default function Message_History_View() {
 
               const result = res.data;
               
-              setMessages(result.data);
+              setMessages(result);
             }
           ).catch(err => {
             console.error(err);

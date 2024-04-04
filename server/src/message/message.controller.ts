@@ -25,28 +25,17 @@ export class MessageController {
     return this.messageService.findAll();
   }
 
-  @Patch(':applicationRef/:sortKey')
+  @Patch(':applicationRef/:userId')
   update(
     @Param('applicationRef') applicationRef: string,
-    @Param('sortKey') sortKey: string,
+    @Param('userId') userId: string,
     @Body() updateMessageDto: UpdateMessageDto,
   ) {
-    return this.messageService.update(
-      applicationRef,
-      sortKey,
-      updateMessageDto,
-    );
+    return this.messageService.update(applicationRef, userId, updateMessageDto);
   }
 
-  @Delete(':id/:userId/:statusId')
-  remove(
-    @Param('id') applicationRef: string,
-    @Param('userId') userId: string,
-    @Param('statusId') statusId: string,
-  ) {
-    const sk = userId + '#' + statusId;
-    console.log(applicationRef);
-    console.log(sk);
-    return this.messageService.remove(applicationRef, sk);
+  @Delete(':id/:userId')
+  remove(@Param('id') applicationRef: string, @Param('userId') userId: string) {
+    return this.messageService.remove(applicationRef, userId);
   }
 }
