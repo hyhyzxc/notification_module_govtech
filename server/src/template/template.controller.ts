@@ -43,8 +43,11 @@ export class TemplateController {
     );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.templateService.remove(id);
+  @Delete(':templateId/:statusName')
+  remove(
+    @Param('templateId') templateId: string,
+    @Param('statusName') statusName: string,
+  ) {
+    return this.templateService.remove(templateId, statusName);
   }
 }

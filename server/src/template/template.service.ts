@@ -3,46 +3,91 @@ import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { v4 as uuid } from 'uuid';
 import { dynamoDBClient } from 'src/aws-config/dynamoDBClient';
-
+import { dynamooseClient } from 'src/dynamoose-config/dynamooseSetup';
+import { TemplateEntity } from 'src/electro_db/electroDB';
+import { table } from 'console';
+import { Template } from './entities/template.entity';
 @Injectable()
 export class TemplateService {
+  // async create(createTemplateDto: CreateTemplateDto) {
+  //   const templateId = uuid();
+  //   const statusId = uuid();
+  //   return await dynamoDBClient()
+  //     .put({
+  //       TableName: 'Template',
+  //       Item: {
+  //         templateId: templateId,
+  //         statusId: statusId,
+  //         fields: createTemplateDto.fields,
+  //         statusName: createTemplateDto.statusName,
+  //         body: createTemplateDto.body,
+  //       },
+  //     })
+  //     .promise();
+  // }
+
   async create(createTemplateDto: CreateTemplateDto) {
+    // const Template = dynamooseClient();
+
+    // const templateId = uuid();
+    // const statusId = uuid();
+
+    // const template = new Template({
+    //     templateId: templateId,
+    //     statusId: statusId,
+    //     fields: createTemplateDto.fields,
+    //     statusName: createTemplateDto.statusName,
+    //     body: createTemplateDto.body,
+    // });
+
+    // return await template.save();
     const templateId = uuid();
     const statusId = uuid();
-    return await dynamoDBClient()
-      .put({
-        TableName: 'Template',
-        Item: {
-          templateId: templateId,
-          statusId: statusId,
-          fields: createTemplateDto.fields,
-          statusName: createTemplateDto.statusName,
-          body: createTemplateDto.body,
-        },
-      })
-      .promise();
-  }
+    return TemplateEntity.put({
+      templateId: templateId,
+      statusId: statusId,
+      fields: createTemplateDto.fields,
+      statusName: createTemplateDto.statusName,
+      body: createTemplateDto.body,
+    }).go({ ignoreOwnership: true });
+}
 
   async findAll() {
-    const results = await dynamoDBClient()
-      .scan({
-        TableName: 'Template',
+    // const results = await dynamoDBClient()
+    //   .scan({
+    //     TableName: 'Template',
+    //   })
+    //   .promise();
+    // return results.Items;
+
+    // const template = dynamooseClient();
+    // return template.scan().exec();
+    
+    
+    return await TemplateEntity.find({
+        // templateId: '883d63fc-46db-4366-9b37-927dc7209845',
+        // statusName: 'test',
       })
-      .promise();
-    return results.Items;
+      .go({ ignoreOwnership: true });
   }
 
-  async findByStatusName(statusName) {
-    const results = await dynamoDBClient()
-      .scan({
-        TableName: 'Template',
-        FilterExpression: 'statusName = :statusName',
-        ExpressionAttributeValues: {
-          ':statusName': statusName,
-        },
+  async findByStatusName(statusName: string) {
+    // const results = await dynamoDBClient()
+    //   .scan({
+    //     TableName: 'Template',
+    //     FilterExpression: 'statusName = :statusName',
+    //     ExpressionAttributeValues: {
+    //       ':statusName': statusName,
+    //     },
+    //   })
+    //   .promise();
+    // return results.Items;
+
+    return await TemplateEntity.query
+      .statusIndex({
+      statusName: statusName,
       })
-      .promise();
-    return results.Items;
+      .go({ ignoreOwnership: true });
   }
 
   async update(
@@ -68,11 +113,11 @@ export class TemplateService {
     return updated.Attributes;
   }
 
-  async remove(templateId: string) {
+  async remove(templateId: string, statusName: string) {
     return await dynamoDBClient()
       .delete({
-        TableName: 'Message',
-        Key: { templateId: templateId },
+        TableName: 'Template',
+        Key: { templateId: templateId, statusName: statusName },
       })
       .promise();
   }

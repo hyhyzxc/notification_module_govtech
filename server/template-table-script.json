@@ -10,6 +10,29 @@
         "KeyType": "RANGE"
       }
     ],
+    "GlobalSecondaryIndexes": [
+      {
+        "IndexName": "GSI_status",
+        "KeySchema": [
+          {
+            "AttributeName": "statusName",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "statusId",
+            "KeyType": "RANGE"
+          }
+        ],
+        "Projection": {
+          "ProjectionType": "ALL"
+        }, 
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        }
+        
+      }
+    ],
     "AttributeDefinitions": [
       {
         "AttributeName": "templateId",
